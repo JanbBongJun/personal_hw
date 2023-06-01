@@ -1,0 +1,55 @@
+.ball {
+  background-color: black;
+  width: 200px;
+  height: 200px;
+  border-radius: 200px;
+  position: sticky;
+  /* display: flex; */
+  /* justify-content: center; */
+  /* align-items: center; */
+  color: white;
+  -ms-user-select: none;
+  -moz-user-select: -moz-none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  top: 40%;
+  left: 40%;
+  font-size: 30px;
+}
+
+body {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+}
+.animation-move {
+  animation: minimize 0.5s;
+}
+.animation-end {
+  animation: maximize 0.5s;
+}
+@keyframes minimize {
+  from {
+    background-color: black;
+    width: 200px;
+    height: 200px;
+  }
+  to {
+    background-color: coral;
+    width: 100px;
+    height: 100px;
+  }
+}
+@keyframes maximize {
+  from {
+    background-color: coral;
+    width: 100px;
+    height: 100px;
+  }
+  to {
+    background-color: black;
+    width: 200px;
+    height: 200px;
+  }
+}

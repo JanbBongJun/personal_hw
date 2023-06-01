@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOVIE RANKING</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="movieTrend.js"></script>
+    <script>
+        let all_content_container
+        let movie_make;
+        let ar;
+        let btnMake;
+
+        const return_btn = function () {
+            return btnMake;
+        }
+        const prev_btn = function () {
+            movie_make.clicked_prev_btn(btnMake)
+        }
+        const next_btn = function () {
+            movie_make.clicked_next_btn(btnMake)
+        }
+        const reset_btn =  function () {
+            if (movie_make instanceof movieTrend) {
+                ar = ['1', '2', '3', '4', '5'];
+                let set = () => { btnMake = ar.map(x => document.getElementById(x)) };
+                 set();
+                // console.log(movie_make);
+                let i = 1;
+                btnMake.forEach((element) => {
+                    element.value = element.innerText = i++;
+                    console.log(i)
+                    element.onclick = () => movie_make.get_page(element.value / 1, movie_make);
+                    // 처음에 movie_make를 this로 사용해서 오류 발생=> 메서드 내에서는 메서드를 발생시킨 객체가
+                    //컨텍스트로 유지되지만, 호출하는 당시 movie_make는 인스턴스의 컨텍스트와 다르다.
+                })
+
+            }
+
+        }
+        window.onload =  async () => {
+            movie_make =  await get_db_set_screen();
+            reset_btn();
+            btnMake[0].style.backgroundColor = '#C48CE3';
+            btnMake[0].style.fontWeight = 'bold'
+
+        };
+
+        let enter = (e) => movie_make = enter_search(e); //엔터 누르면 검색수행
+        window.onresize = function (event) {
+            let innerWidth = window.innerWidth;
+            let innerHeight = window.innerHeight;
+            // let innerHeight= window.innerHeight;
+            // console.log("innerWidth: ", innerWidth);
+            all_content_container = document.getElementById("all_content_container");
+            const btns = document.getElementById('buttons')
+
+            // console.log(all_content_container);
+            if (all_content_container) { //폰트사이즈도 같은 방법을 수정 가능
+                if (innerWidth > 1000) {
+                    all_content_container.style.gridTemplateColumns = 'repeat(3, minmax(300px, auto))';
+                    all_content_container.style.gridTemplateRows = 'repeat(auto-fit, minmax(300px, auto))';
+                    btns.style.top = '16%';
+                    if (innerHeight < 640) btns.style.top = '20%'
+                } else if (innerWidth <= 1000 && innerWidth > 500) {
+                    all_content_container.style.gridTemplateColumns = 'repeat(2, minmax(300px, auto))'
+                    all_content_container.style.gridTemplateRows = 'repeat(auto-fit, minmax(300px, 3000px))';
+                    btns.style.top = '8%';
+                    // if(innerHeight<640) btns.style.top='14%'
+                } else if (innerWidth <= 500) {
+                    all_content_container.style.gridTemplateColumns = 'repeat(1, minmax(300px, 400px))'
+                    all_content_container.style.gridTemplateRows = 'repeat(auto-fit, minmax(300px, 700px))';
+                    btns.style.top = '5%';
+                }
+            }
+        };
+
+    </script>
+</head>
+
+<body class="edge" id="edge">
+    <div class="mytitle">
+        <p>최고 평점 영화 컬렉션</p>
+        <div class="movieSearch" id="movieSearch">
+            <p>검색</p>
+            <input id="movieNameSearch" type="text" class="movieNameSearch" placeholder="영화 이름 검색"
+                onkeypress="enter_search(event)" autofocus />
+            <button id='movie_search' class="movie_search" onclick="make_search_btn(movie_make)">
+                <p>검색</p>
+            </button>
+        </div>
+    </div>
+    <div class="buttons" id="buttons">
+        <img src="\home_button.png" id="home_button" class="home_button" onclick="return_tmdb_data(movie_make)" />
+        <button id="prev_btn" class="previous" value='previous' onclick="prev_btn()">previous</button>
+        <button id="1" class="btn" value='1'>1</button>
+        <button id="2" class="btn" value='2'>2</button>
+        <button id="3" class="btn" value="3">3</button>
+        <button id="4" class="btn" value="4">4</button>
+        <button id="5" class="btn" value="5">5</button>
+        <button id="next" class="next" value='next' onclick="next_btn()">next</button>
+    </div>
+    <!-- <div class="all_content_container" id="all_content_container">
+    </div> -->
+
+
+</body>
+<!--  보류 -->
+<!-- <script src="./dragger.js"></script> -->
+
+</html>
