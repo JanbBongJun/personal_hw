@@ -4,6 +4,7 @@ let movie_db, movie_db_length;
 let all_content_container;
 let btnMake;
 let ask_repeat_search;
+
 const options = {
     method: 'GET',
     headers: {
@@ -106,10 +107,17 @@ function clicked_prev_btn(btnMake) {
     }
 }
 let clicked_home_btn = () => {
-    edge.removeChild(ask_repeat_search); //만약 검색창에 입력값 없이 눌렀을 때 나오는 창의 html요소를 부모요소인 edge에서 삭제 
-    ask_repeat_search = null; //변수를 null로 초기화
+    if(ask_repeat_search){
+        edge.removeChild(ask_repeat_search); //만약 검색창에 입력값 없이 눌렀을 때 나오는 창의 html요소를 부모요소인 edge에서 삭제 
+        ask_repeat_search = null; //변수를 null로 초기화
+    }
     document.getElementById('movieNameSearch').value = ''//홈버튼 눌렀을때 input창 비우기
     setScreen(1);
+    let i=1
+    btnMake.forEach((element)=>{
+        element.value=i
+        element.innerText=i++
+    })
     btnSet(1);
 }
 
