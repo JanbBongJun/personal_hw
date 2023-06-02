@@ -123,7 +123,7 @@ function clicked_prev_btn(btnMake) {
     }
 }
 let clicked_home_btn = () => {
-    let elements = document.getElementsByClassName("ask_repeat_search"); // "className"은 제거하려는 요소의 클래스 이름입니다.
+    let elements = document.getElementsByClassName("ask_repeat_search"); 
     while (elements.length > 0) {
         elements[0].parentNode.removeChild(elements[0]);
     }
