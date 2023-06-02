@@ -16,7 +16,9 @@ let total_page;
 let movie_db, movie_db_length;
 let all_content_container;
 let btnMake;
-let ask_repeat_search;
+let searched_db;
+let edge;
+
 
 const options = {
     method: 'GET',
@@ -27,6 +29,7 @@ const options = {
 };
 
 window.onload = () => { //html문서가 준비되면 실행
+    edge = document.getElementById('edge');
     all_content_container = document.getElementById('all_content_container')
     btnMake = ['1', '2', '3', '4', '5'].map(x => document.getElementById(x)) //배열의 map기능을 이용하여 , btnMake에 각각의 버튼 저장
     btnSet(1);
@@ -34,9 +37,9 @@ window.onload = () => { //html문서가 준비되면 실행
 };
 
 async function setScreen(page_index) { //원하는 페이지인덱스의 db를 불러오고, container에 해당 요소들을 추가한다.
-    if (ask_repeat_search) {
-        edge.removeChild(ask_repeat_search);
-        ask_repeat_search = null;
+    let elements = document.getElementsByClassName("ask_repeat_search"); // "className"은 제거하려는 요소의 클래스 이름입니다.
+    while (elements.length > 0) {
+        elements[0].parentNode.removeChild(elements[0]);
     }
     let directoryHtml = "";
     change_color_btn(btnMake[(now_page_num - 1) % 5], btnMake[(page_index - 1) % 5])
@@ -120,26 +123,26 @@ function clicked_prev_btn(btnMake) {
     }
 }
 let clicked_home_btn = () => {
-    if(ask_repeat_search){
-        edge.removeChild(ask_repeat_search); //만약 검색창에 입력값 없이 눌렀을 때 나오는 창의 html요소를 부모요소인 edge에서 삭제 
-        ask_repeat_search = null; //변수를 null로 초기화
+    let elements = document.getElementsByClassName("ask_repeat_search"); // "className"은 제거하려는 요소의 클래스 이름입니다.
+    while (elements.length > 0) {
+        elements[0].parentNode.removeChild(elements[0]);
     }
+    
     document.getElementById('movieNameSearch').value = ''//홈버튼 눌렀을때 input창 비우기
     setScreen(1);
-    let i=1
-    btnMake.forEach((element)=>{
-        element.value=i
-        element.innerText=i++
+    let i = 1
+    btnMake.forEach((element) => {
+        element.value = i
+        element.innerText = i++
     })
     btnSet(1);
 }
 
 function clicked_search_btn() {
-
     const input_element = document.getElementById('movieNameSearch');
     let value = input_element.value.toLowerCase()        //input 통해서 받은 value가져와서 소문자변환
     let i = 0;
-    movie_db = movie_db.filter((currentValue) => {//문자를 모두 소문자로 변환하여 일치하는 지 비교 => true면 배열추가
+    searched_db = movie_db.filter((currentValue) => {//문자를 모두 소문자로 변환하여 일치하는 지 비교 => true면 배열추가
         let str_is_same = currentValue.title.toLowerCase(); //각각의 title을 소문자로 변환
         if (str_is_same === value) {
             i++
@@ -147,32 +150,34 @@ function clicked_search_btn() {
         }
         return false;
     })
-    console.log(movie_db)
+    console.log(searched_db)
     console.log(i)
 
     movieNumber = movie_db.length; //ok
 
     if (!i) {
-        //만약 movie_db에 저장된 요소가 없으면 "검색된 영화가 없어요, 영화 제목을 다시 확인해주세요" 화면에 출력
+        //만약 searched_db에 저장된 요소가 없으면 "검색된 영화가 없어요, 영화 제목을 다시 확인해주세요" 화면에 출력
         let directoryHtml = ``;
         all_content_container.innerHTML = directoryHtml
-
-        const edge = document.getElementById('edge');
-        ask_repeat_search = document.createElement('p')
+        
+        const ask_repeat_search = document.createElement('p')
         ask_repeat_search.id = 'ask_repeat_search'
         ask_repeat_search.classList.add("ask_repeat_search");
         ask_repeat_search.textContent = "검색된 영화가 없어요, 영화 제목을 다시 확인해주세요"
+
         edge.appendChild(ask_repeat_search)
     }
     else {
+        let elements = document.getElementsByClassName("ask_repeat_search"); // "className"은 제거하려는 요소의 클래스 이름입니다.
+        while (elements.length > 0) {
+            elements[0].parentNode.removeChild(elements[0]);
+        }
+
         let directoryHtml = "";
-        const edge = document.getElementById('edge');
-        movie_db.forEach( (element)=>{
+        searched_db.forEach((element) => {
             directoryHtml += makeMovieDirectory(element.id, element.poster_path, element.title, element.overview, element.vote_average);
         })
-        all_content_container.innerHTML=directoryHtml;
-        
-        return 'appendOK';
+        all_content_container.innerHTML = directoryHtml;
     }
 }
 
@@ -208,6 +213,3 @@ window.onresize = function (event) {
         }
     }
 };
-
-
-
