@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="movieSite.css">
+    <script src="movieSite.js"></script>
+</head>
+<body id="edge">
+    <div class="mytitle">
+        <p>최고 평점 영화 컬렉션</p>
+        <div class="movieSearch" id="movieSearch">
+            <p>검색</p>
+            <input id="movieNameSearch" type="text" class="movieNameSearch" placeholder="영화 이름 검색"
+                onkeypress="enter_search(event)" autofocus />
+            <button id='movie_search' class="movie_search" onclick="clicked_search_btn()">
+                <p>검색</p>
+            </button>
+        </div>
+    </div>
+
+    <div class="buttons" id="buttons">
+        <img src="\home_button.png" id="home_button" class="home_button" onclick="clicked_home_btn()" />
+        <button id="prev_btn" class="previous" value='previous' onclick="">previous</button>
+        <button id="1" class="btn" value='1'>1</button>
+        <button id="2" class="btn" value='2'>2</button>
+        <button id="3" class="btn" value="3">3</button>
+        <button id="4" class="btn" value="4">4</button>
+        <button id="5" class="btn" value="5">5</button>
+        <button id="next" class="next" value='next' onclick="clicked_next_btn(btnMake)">next</button>
+    </div>
+    <div class="all_content_container" id="all_content_container"></div>
+</body>
+</html>
