@@ -18,7 +18,8 @@ let all_content_container;
 let btnMake;
 let searched_db;
 let edge;
-
+let isSearchOpen = false;
+let searchKeyword;
 
 const options = {
     method: 'GET',
@@ -38,23 +39,41 @@ window.onload = () => { //html문서가 준비되면 실행
 
 async function setScreen(page_index) { //원하는 페이지인덱스의 db를 불러오고, container에 해당 요소들을 추가한다.
     let elements = document.getElementsByClassName("ask_repeat_search"); // "className"은 제거하려는 요소의 클래스 이름입니다.
-    while (elements.length > 0) {
+    while (elements.length) {
         elements[0].parentNode.removeChild(elements[0]);
     }
     let directoryHtml = "";
     change_color_btn(btnMake[(now_page_num - 1) % 5], btnMake[(page_index - 1) % 5])
 
-    now_page_num = await page_index; //현재 페이지 정보를 page_index로 수정
-    await fetch('https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=' + page_index, options)
-        .then(response => response.json())
-        .then((response) => {
-            movie_db = response.results;
-            movie_db_length = movie_db.length;
-            total_page = response.total_pages;
-            movie_db.forEach((element) => { //한페이지에 담길 영화들 all_content_container에 추가 
-                directoryHtml += makeMovieDirectory(element.id, element.poster_path, element.title, element.overview, element.vote_average);
+    now_page_num = page_index; //현재 페이지 정보를 page_index로 수정
+    if (!isSearchOpen) {
+        await fetch('https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=' + page_index, options)
+            .then(response => response.json())
+            .then((response) => {
+                movie_db = response.results;
+                movie_db_length = movie_db.length;
+                total_page = response.total_pages;
+                total_results = response.total_results;
+                movie_db.forEach((element) => { //한페이지에 담길 영화들 all_content_container에 추가 
+                    directoryHtml += makeMovieDirectory(element.id, element.poster_path, element.title, element.overview, element.vote_average);
+                })
+            }).catch(err => console.error(err));
+    } else {
+        await fetch(`https://api.themoviedb.org/3/search/movie?query=${searchKeyword}&include_adult=true&language=ko&page=1${now_page_num}`, options)
+            .then(response => response.json())
+            .then(async response => {
+                movie_db = searched_db = await response.results;
+                movie_db_length = movie_db.length;
+                total_page = response.total_pages;
+                // console.log(movie_db)
+                movie_db.forEach((element) => { //한페이지에 담길 영화들 all_content_container에 추가 
+                    directoryHtml += makeMovieDirectory(element.id, element.poster_path, element.title, element.overview, element.vote_average);
+                })
             })
-        }).catch(err => console.error(err));
+            .catch(error => console.error(err));
+    }
+    console.log(now_page_num)
+
     // console.log(directoryHtml)
     all_content_container.innerHTML = directoryHtml
 }
@@ -93,7 +112,7 @@ function btnSet(page_first_index) { //btn의 숫자를 지정하고, 클릭이�
 
 function clicked_next_btn(btnMake) { //nextBtn눌렀을때 동작
     let page_index = now_page_num / 1 + 1;
-    if (now_page_num === total_page) { //페이지 끝부분에서는 동작되지 않도록 설정ㄴ
+    if (now_page_num === total_page) { //페이지 끝부분에서는 동작되지 않도록 설정
         return;
     } else if (now_page_num % 5 !== 0) {
         setScreen(page_index)
@@ -119,15 +138,10 @@ function clicked_prev_btn(btnMake) {
             element.innerText = element.value;
         })
         setScreen(page_index)
-
     }
 }
 let clicked_home_btn = () => {
-    let elements = document.getElementsByClassName("ask_repeat_search"); 
-    while (elements.length > 0) {
-        elements[0].parentNode.removeChild(elements[0]);
-    }
-    
+    isSearchOpen = false;
     document.getElementById('movieNameSearch').value = ''//홈버튼 눌렀을때 input창 비우기
     setScreen(1);
     let i = 1
@@ -138,47 +152,55 @@ let clicked_home_btn = () => {
     btnSet(1);
 }
 
-function clicked_search_btn() {
+async function clicked_search_btn() {
     const input_element = document.getElementById('movieNameSearch');
-    let value = input_element.value.toLowerCase()        //input 통해서 받은 value가져와서 소문자변환
-    let i = 0;
-    searched_db = movie_db.filter((currentValue) => {//문자를 모두 소문자로 변환하여 일치하는 지 비교 => true면 배열추가
-        let str_is_same = currentValue.title.toLowerCase(); //각각의 title을 소문자로 변환
-        if (str_is_same === value) {
-            i++
-            return true;
-        }
-        return false;
+    let value = searchKeyword = input_element.value;
+    let total_results;
+    isSearchOpen = true;
+    change_color_btn(btnMake[(now_page_num - 1) % 5], btnMake[0])
+    now_page_num = 1;
+    let i = 1
+    btnMake.forEach((element) => {
+        element.value = i
+        element.innerText = i++
     })
-    console.log(searched_db)
-    console.log(i)
 
-    movieNumber = movie_db.length; //ok
+    //query부분 String으로 형변환 필수, 
+    //&include_adult=true&language=ko&page=1 청불true, language ko로 지정, page=1로지정
+    await fetch(`https://api.themoviedb.org/3/search/movie?query=${value}&include_adult=true&language=ko&page=1`, options)
+        .then(response => response.json())
+        .then(response => {
+            movie_db = searched_db = response.results;
+            // console.log(response)
 
-    if (!i) {
+            movie_db_length = movie_db.length;
+            total_page = response.total_pages;
+            total_results = response.total_results;
+        })
+        .catch(error => console.error(err));
+
+    if (!total_results) {
         //만약 searched_db에 저장된 요소가 없으면 "검색된 영화가 없어요, 영화 제목을 다시 확인해주세요" 화면에 출력
         let directoryHtml = ``;
         all_content_container.innerHTML = directoryHtml
-        
         const ask_repeat_search = document.createElement('p')
         ask_repeat_search.id = 'ask_repeat_search'
         ask_repeat_search.classList.add("ask_repeat_search");
         ask_repeat_search.textContent = "검색된 영화가 없어요, 영화 제목을 다시 확인해주세요"
-
         edge.appendChild(ask_repeat_search)
     }
     else {
         let elements = document.getElementsByClassName("ask_repeat_search"); // "className"은 제거하려는 요소의 클래스 이름입니다.
-        while (elements.length > 0) {
+        while (elements.length) {
             elements[0].parentNode.removeChild(elements[0]);
         }
-
         let directoryHtml = "";
         searched_db.forEach((element) => {
             directoryHtml += makeMovieDirectory(element.id, element.poster_path, element.title, element.overview, element.vote_average);
         })
         all_content_container.innerHTML = directoryHtml;
     }
+    btnSet(1);
 }
 
 function enter_search(e) {
@@ -188,28 +210,29 @@ function enter_search(e) {
     }
 }
 
-window.onresize = function (event) {
-    let innerWidth = window.innerWidth;
-    let innerHeight = window.innerHeight;
-    all_content_container = document.getElementById("all_content_container");
-    const btns = document.getElementById('buttons')
 
-    // console.log(all_content_container);
-    if (all_content_container) { //폰트사이즈도 같은 방법을 수정 가능
-        if (innerWidth > 1000) {
-            all_content_container.style.gridTemplateColumns = 'repeat(3, minmax(300px, auto))';
-            all_content_container.style.gridTemplateRows = 'repeat(auto-fit, minmax(300px, auto))';
-            btns.style.top = '16%';
-            if (innerHeight < 640) btns.style.top = '20%'
-        } else if (innerWidth <= 1000 && innerWidth > 500) {
-            all_content_container.style.gridTemplateColumns = 'repeat(2, minmax(300px, auto))'
-            all_content_container.style.gridTemplateRows = 'repeat(auto-fit, minmax(300px, 3000px))';
-            btns.style.top = '8%';
-            // if(innerHeight<640) btns.style.top='14%'
-        } else if (innerWidth <= 500) {
-            all_content_container.style.gridTemplateColumns = 'repeat(1, minmax(300px, 400px))'
-            all_content_container.style.gridTemplateRows = 'repeat(auto-fit, minmax(300px, 700px))';
-            btns.style.top = '5%';
-        }
-    }
-};
+// window.onresize = function (event) {
+//     let innerWidth = window.innerWidth;
+//     let innerHeight = window.innerHeight;
+//     all_content_container = document.getElementById("all_content_container");
+//     const btns = document.getElementById('buttons')
+
+//     // console.log(all_content_container);
+//     if (all_content_container) { //폰트사이즈도 같은 방법을 수정 가능
+//         if (innerWidth > 1000) {
+//             all_content_container.style.gridTemplateColumns = 'repeat(3, minmax(300px, auto))';
+//             all_content_container.style.gridTemplateRows = 'repeat(auto-fit, minmax(300px, auto))';
+//             btns.style.top = '16%';
+//             if (innerHeight < 640) btns.style.top = '20%'
+//         } else if (innerWidth <= 1000 && innerWidth > 500) {
+//             all_content_container.style.gridTemplateColumns = 'repeat(2, minmax(300px, auto))'
+//             all_content_container.style.gridTemplateRows = 'repeat(auto-fit, minmax(300px, 3000px))';
+//             btns.style.top = '8%';
+//             // if(innerHeight<640) btns.style.top='14%'
+//         } else if (innerWidth <= 500) {
+//             all_content_container.style.gridTemplateColumns = 'repeat(1, minmax(300px, 400px))'
+//             all_content_container.style.gridTemplateRows = 'repeat(auto-fit, minmax(300px, 700px))';
+//             btns.style.top = '5%';
+//         }
+//     }
+// };
