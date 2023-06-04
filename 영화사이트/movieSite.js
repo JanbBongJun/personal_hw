@@ -209,30 +209,3 @@ function enter_search(e) {
         return clicked_search_btn();
     }
 }
-
-
-// window.onresize = function (event) {
-//     let innerWidth = window.innerWidth;
-//     let innerHeight = window.innerHeight;
-//     all_content_container = document.getElementById("all_content_container");
-//     const btns = document.getElementById('buttons')
-
-//     // console.log(all_content_container);
-//     if (all_content_container) { //폰트사이즈도 같은 방법을 수정 가능
-//         if (innerWidth > 1000) {
-//             all_content_container.style.gridTemplateColumns = 'repeat(3, minmax(300px, auto))';
-//             all_content_container.style.gridTemplateRows = 'repeat(auto-fit, minmax(300px, auto))';
-//             btns.style.top = '16%';
-//             if (innerHeight < 640) btns.style.top = '20%'
-//         } else if (innerWidth <= 1000 && innerWidth > 500) {
-//             all_content_container.style.gridTemplateColumns = 'repeat(2, minmax(300px, auto))'
-//             all_content_container.style.gridTemplateRows = 'repeat(auto-fit, minmax(300px, 3000px))';
-//             btns.style.top = '8%';
-//             // if(innerHeight<640) btns.style.top='14%'
-//         } else if (innerWidth <= 500) {
-//             all_content_container.style.gridTemplateColumns = 'repeat(1, minmax(300px, 400px))'
-//             all_content_container.style.gridTemplateRows = 'repeat(auto-fit, minmax(300px, 700px))';
-//             btns.style.top = '5%';
-//         }
-//     }
-// };
